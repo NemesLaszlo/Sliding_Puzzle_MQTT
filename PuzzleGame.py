@@ -25,7 +25,7 @@ class PuzzleGame:
         system = platform.system()
         if system == 'Linux' or system == 'Darwin':
             path_pictures = path_project + "/pictures"
-            return str(path_pictures + "\\" + self.random_picture(path_pictures))
+            return str(path_pictures + "/" + self.random_picture(path_pictures))
         elif system == 'Windows':
             path_pictures = path_project + "\\pictures"
             return str(path_pictures + "\\" + self.random_picture(path_pictures))
