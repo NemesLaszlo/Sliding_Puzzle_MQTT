@@ -1,54 +1,54 @@
 import os
+import platform
+import random
 from tkinter import *
-from tkinter import filedialog
 import Board
+import xml.dom.minidom
 
 
 class PuzzleGame:
 
     def __init__(self, parent):
         self.parent = parent
-        self.image = StringVar()
-        self.grid = IntVar()
-        self.win_text = StringVar()
-
-        self.mainFrame = Frame(self.parent)
+        self.grid = 3
+        self.send_config_xml_to_broker()
         self.board = Frame(self.parent)
-        self.winFrame = Frame(self.parent)
-        self.create_startmenu()
+        self.start()
 
-    def create_startmenu(self):
-        Label(self.mainFrame, text="MQTT Sliding Puzzle", font=("", 50)).pack(padx=10, pady=10)
-        frame = Frame(self.mainFrame)
-        Label(frame, text="Image").grid(sticky=W)
-        Entry(frame, textvariable=self.image, width=50).grid(row=0, column=1, padx=10, pady=10)
-        Button(frame, text="Browse", command=self.browse_image).grid(row=0, column=2, padx=10, pady=10)
-        Label(frame, text="Grid").grid(sticky=W)
-        OptionMenu(frame, self.grid, *[2, 3, 4, 5, 6, 7, 8, 9, 10]).grid(row=1, column=1, padx=10, pady=10, sticky=W)
-        frame.pack(padx=10, pady=10)
-        Button(self.mainFrame, text="Start", command=self.start).pack(padx=10, pady=10)
-        self.mainFrame.pack()
-        Label(self.winFrame, textvariable=self.win_text, font=("", 50)).pack(padx=10, pady=10)
-        Button(self.winFrame, text="Play Again", command=self.play_again).pack(padx=10, pady=10)
+    def send_config_xml_to_broker(self):
+        xmlObject = xml.dom.minidom.parse("config_setup.xml")
+        pretty_xml_as_string = xmlObject.toprettyxml()
+        print(pretty_xml_as_string)
+
+    def pick_random_picture(self):
+        path_project = os.path.dirname(os.path.realpath(__file__))
+        system = platform.system()
+        if system == 'Linux' or system == 'Darwin':
+            path_pictures = path_project + "/pictures"
+            return str(path_pictures + "\\" + self.random_picture(path_pictures))
+        elif system == 'Windows':
+            path_pictures = path_project + "\\pictures"
+            return str(path_pictures + "\\" + self.random_picture(path_pictures))
+
+    def random_picture(self, place):
+        random_filename = random.choice([
+            x for x in os.listdir(place)
+            if os.path.isfile(os.path.join(place, x))
+        ])
+        return random_filename
 
     def start(self):
-        image = self.image.get()
-        grid = self.grid.get()
+        image = self.pick_random_picture()
+        grid = self.grid
         if os.path.exists(image):
             self.board = Board.Board(parent=self.parent, image=image, grid=grid, win=self.win)
-            self.mainFrame.pack_forget()
             self.board.pack()
-
-    def browse_image(self):
-        self.image.set(filedialog.askopenfilename(
-            title="Select Image",
-            filetype=(("png File", "*.png"), ("jpg File", "*.jpg"))))
 
     def win(self, moves):
         self.board.pack_forget()
-        self.win_text.set("You are win, with {0} moves.".format(moves))
-        self.winFrame.pack()
+        win_text = ("You are win, with {0} moves.".format(moves))
+        print(win_text)
+        self.play_again()
 
     def play_again(self):
-        self.winFrame.pack_forget()
-        self.mainFrame.pack()
+        self.start()
