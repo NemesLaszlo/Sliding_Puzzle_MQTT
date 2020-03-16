@@ -2,25 +2,38 @@ from tkinter import *
 from PIL import Image, ImageTk
 import Tiles
 
+# maximum board size, it the picture is bigger we resize it to 500 x 500
 MAX_BOARD_SIZE = 500
 
 
 class Board(Frame):
+    """
+    Puzzle Game board object.
+    Inherited from Frame.
+    """
 
     def __init__(self, parent, image, grid, win,  *args, **kwargs):
+        """
+        Constructor of the Board.
+        """
         Frame.__init__(self, parent, *args, **kwargs)
 
         self.parent = parent
-        self.grid = grid
-        self.win = win
+        self.grid = grid  # board grid size
+        self.win = win  # win method
         self.image = self.open_image(image)
-        self.tile_size = self.image.size[0] / self.grid
+        self.tile_size = self.image.size[0] / self.grid  # cut picture part size -> tile
         self.tiles = self.create_tiles()
         self.tiles.suffle()
         self.tiles.show()
         self.bind_keys()
 
     def open_image(self, image):
+        """
+        image - picture file path.
+        Open the image, resize it, and crop it.
+        Return with the resized or cropped image.
+        """
         image = Image.open(image)
         if min(image.size) > MAX_BOARD_SIZE:
             image = image.resize((MAX_BOARD_SIZE, MAX_BOARD_SIZE), Image.ANTIALIAS)
@@ -29,6 +42,10 @@ class Board(Frame):
         return image
 
     def create_tiles(self):
+        """
+        Create tiles from the good sized of image.
+        Return with a Tiles object, which has a list of the image tiles - Tile object.
+        """
         tiles = Tiles.Tiles(grid=self.grid)
 
         for row in range(self.grid):
@@ -44,12 +61,18 @@ class Board(Frame):
         return tiles
 
     def bind_keys(self):
+        """
+        Bind the control of the game.
+        """
         self.bind_all("<Key-Up>", self.slide)
         self.bind_all("<Key-Down>", self.slide)
         self.bind_all("<Key-Right>", self.slide)
         self.bind_all("<Key-Left>", self.slide)
 
     def slide(self, event):
+        """
+        Picture tile movement event, and win check.
+        """
         self.tiles.slide(event.keysym)
         if self.tiles.is_correct():
             self.win(self.tiles.moves)
