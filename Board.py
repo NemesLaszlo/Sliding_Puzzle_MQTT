@@ -12,13 +12,14 @@ class Board(Frame):
     Inherited from Frame.
     """
 
-    def __init__(self, parent, image, grid, win,  *args, **kwargs):
+    def __init__(self, parent, image, grid, win, client,  *args, **kwargs):
         """
         Constructor of the Board.
         """
         Frame.__init__(self, parent, *args, **kwargs)
 
         self.parent = parent
+        self.client = client
         self.grid = grid  # board grid size
         self.win = win  # win method
         self.image = self.open_image(image)
@@ -73,6 +74,11 @@ class Board(Frame):
         """
         Picture tile movement event, and win check.
         """
+        # self.client.subscribe("devices/11:22:33:55/inbox/User1/function/1")
+        # self.client.subscribe("devices/11:22:33:55/inbox/User1/function/2")
+        # self.client.subscribe("devices/11:22:33:55/inbox/User1/function/3")
+        # self.client.subscribe("devices/11:22:33:55/inbox/User1/function/4")
+
         self.tiles.slide(event.keysym)
         if self.tiles.is_correct():
             self.win(self.tiles.moves)

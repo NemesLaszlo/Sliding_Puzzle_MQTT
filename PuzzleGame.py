@@ -1,9 +1,19 @@
 import os
 import platform
 import random
+import threading
 from tkinter import *
 import Board
 import xml.dom.minidom
+
+
+def thread_function(client):
+    """
+    Keepalive topic publisher, in very 30sec to the broker.
+    """
+    threading.Timer(30.0, thread_function).start()
+    client.publish("serverCommand/keepalive", "0")
+    print("Message Sent. (keepalive)")
 
 
 class PuzzleGame:
@@ -11,16 +21,20 @@ class PuzzleGame:
     Puzzle Game main object, with the game parameters, and methods.
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, client):
         """
         Constructor of the Puzzle Game, with
         a parent parameter, which is the root Tk() object.
         """
         self.parent = parent
+        self.client = client
         self.grid = 3  # 3x3 board game, for picture cutting.
         self.send_config_xml_to_broker()  # send the xml config file about this game to the mqtt broker.
         self.board = Frame(self.parent)
         self.start()
+        # keepalive topic writer thread in every 30sec, to the broker (this device is online)
+        keepalive_thread = threading.Thread(target=thread_function, args=(self.client, ))
+        keepalive_thread.start()
 
     def send_config_xml_to_broker(self):
         """
@@ -28,7 +42,8 @@ class PuzzleGame:
         """
         xmlObject = xml.dom.minidom.parse("config_setup.xml")
         pretty_xml_as_string = xmlObject.toprettyxml()
-        print(pretty_xml_as_string)
+        self.client.publish("users/everyone/inbox/server/deviceList", pretty_xml_as_string)
+        print("XML config sent.")
 
     def pick_random_picture(self):
         """
@@ -62,7 +77,7 @@ class PuzzleGame:
         image = self.pick_random_picture()
         grid = self.grid
         if os.path.exists(image):
-            self.board = Board.Board(parent=self.parent, image=image, grid=grid, win=self.win)
+            self.board = Board.Board(parent=self.parent, image=image, grid=grid, win=self.win, client=self.client)
             self.board.pack()
 
     def win(self, moves):
