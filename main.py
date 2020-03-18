@@ -8,6 +8,10 @@ import time
 def on_connect(client, userdata, flags, rc):
     print("Connected with Code :" + str(rc))
     # Subscribe Topic from here
+    client.subscribe("devices/11:22:33:55/inbox/User1/function/1")
+    client.subscribe("devices/11:22:33:55/inbox/User1/function/2")
+    client.subscribe("devices/11:22:33:55/inbox/User1/function/3")
+    client.subscribe("devices/11:22:33:55/inbox/User1/function/4")
 
 
 # Callback Function on Receiving the Subscribed Topic/Message
