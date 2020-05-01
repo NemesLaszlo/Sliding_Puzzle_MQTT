@@ -17,8 +17,8 @@ def on_connect(client, userdata, flags, rc):
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_message(client, userdata, msg):
     # print the message received from the subscribed topic
-    #message = msg.payload
-    #message = message.decode()  # default decoding utf-8
+    # message = msg.payload
+    # message = message.decode()  # default decoding utf-8
     print(str(msg.payload))
 
 
@@ -37,7 +37,7 @@ def main():
     client.loop_start()
     # time.sleep(1)
     # while True:
-        # client.publish("Tutorial", "Getting Started with MQTT")
+        # client.publish("Message", "Getting Started with MQTT")
         # print("Message Sent")
         # time.sleep(15)
     root = Tk()
